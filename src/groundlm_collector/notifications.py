@@ -54,16 +54,17 @@ def render_message(
     *,
     repo_url: str,
     greeting: str = "Dear author,",
+    template: str | None = None,
 ) -> str:
     paper_lines = "\n".join(
         f"- {paper.number} — {paper.title}" for paper in papers
     )
-    return f"""{greeting}
+    default_template = """{greeting}
 
 We are preparing the GroundLM 2026 workshop materials. Please check the
 following paper(s) in the workshop repository:
 
-{paper_lines}
+    {papers}
 
 Please check the paper PDF, supplementary materials, metadata, and ACL
 publication-check result. If you find a problem, please update the relevant
@@ -73,3 +74,9 @@ file in the repository or contact the workshop organizers if you need access:
 Thank you,
 GroundLM 2026 Workshop Organizers
 """
+    selected = template if template is not None else default_template
+    return selected.format(
+        greeting=greeting,
+        papers=paper_lines,
+        repo_url=repo_url,
+    )

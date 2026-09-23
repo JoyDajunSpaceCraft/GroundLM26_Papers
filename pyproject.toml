@@ -14,6 +14,7 @@ dependencies = [
 [project.scripts]
 groundlm-collect = "groundlm_collector.cli:main"
 groundlm-notify = "groundlm_collector.notify_cli:main"
+groundlm-notify-web = "groundlm_collector.notify_web:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

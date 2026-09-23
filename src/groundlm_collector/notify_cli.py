@@ -49,6 +49,12 @@ def _parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     )
     parser.add_argument("--reply-to")
     parser.add_argument(
+        "--cc",
+        action="append",
+        default=[],
+        help="Additional OpenReview-recognized recipient; may be repeated",
+    )
+    parser.add_argument(
         "--log",
         type=Path,
         default=Path("private/openreview_messages.jsonl"),
@@ -103,6 +109,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         yes=args.yes,
         invitation=args.invitation,
         reply_to=args.reply_to,
+        cc=args.cc,
         log_path=args.log,
     )
     print(f"planned={result.planned} sent={result.sent}", flush=True)

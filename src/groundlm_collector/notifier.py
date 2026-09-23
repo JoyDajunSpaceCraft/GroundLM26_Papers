@@ -92,6 +92,8 @@ def send_notifications(
     yes: bool = False,
     invitation: str | None = None,
     reply_to: str | None = None,
+    message_template: str | None = None,
+    cc: Sequence[str] = (),
     log_path: Path | None = None,
 ) -> NotificationSendResult:
     grouped = group_papers_by_author(papers)
@@ -102,18 +104,23 @@ def send_notifications(
         return NotificationSendResult(planned=len(grouped), sent=0)
 
     sent = 0
+    cc_recipients = tuple(dict.fromkeys(item.strip() for item in cc if item.strip()))
     for recipient, author_papers in grouped.items():
-        message = render_message(author_papers, repo_url=repo_url)
+        message = render_message(
+            author_papers, repo_url=repo_url, template=message_template
+        )
         if invitation:
             response = client.post_message(
                 subject,
-                [recipient],
+                list(dict.fromkeys([recipient, *cc_recipients])),
                 message,
                 invitation=invitation,
                 replyTo=reply_to,
             )
         else:
-            response = client.post_direct_message(subject, [recipient], message)
+            response = client.post_direct_message(
+                subject, list(dict.fromkeys([recipient, *cc_recipients])), message
+            )
         sent += 1
         if log_path:
             _append_log(log_path, recipient, author_papers, response)
