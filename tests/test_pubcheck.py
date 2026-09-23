@@ -31,7 +31,7 @@ def test_unknown_paper_type_needs_review():
 
 def test_zero_checker_exit_is_pass(tmp_path):
     def runner(args, **kwargs):
-        return CompletedProcess(args, 0, "All checks passed\n", "")
+        return CompletedProcess(args, 0, "Checking paper.pdf\nAll Clear!\n", "")
 
     result = run_pubcheck(
         tmp_path / "paper.pdf", "long", ["aclpubcheck"], runner=runner
@@ -39,10 +39,67 @@ def test_zero_checker_exit_is_pass(tmp_path):
 
     assert result.status == "pass"
     assert result.exit_code == 0
-    assert "All checks passed" in result.summary
+    assert result.summary == "All Clear!"
 
 
-def test_nonzero_checker_exit_is_fail(tmp_path):
+def test_zero_exit_with_reported_errors_is_fail(tmp_path):
+    def runner(args, **kwargs):
+        return CompletedProcess(
+            args,
+            0,
+            "Checking paper.pdf\n"
+            "Error (Margin): Text on page 2 bleeds into the right margin.\n"
+            "We detected 1 error and 0 warnings in your paper.\n",
+            "",
+        )
+
+    result = run_pubcheck(
+        tmp_path / "paper.pdf", "long", ["aclpubcheck"], runner=runner
+    )
+
+    assert result.status == "fail"
+    assert "We detected 1 error" in result.summary
+    assert "Margin" in result.summary
+
+
+def test_zero_exit_with_warnings_only_is_pass(tmp_path):
+    def runner(args, **kwargs):
+        return CompletedProcess(
+            args,
+            0,
+            "Checking paper.pdf\n"
+            "Warning (Bibliography): Check a citation.\n"
+            "We detected 0 errors and 1 warning in your paper.\n",
+            "",
+        )
+
+    result = run_pubcheck(
+        tmp_path / "paper.pdf", "short", ["aclpubcheck"], runner=runner
+    )
+
+    assert result.status == "pass"
+    assert "0 errors" in result.summary
+
+
+def test_parsing_error_is_checker_error(tmp_path):
+    def runner(args, **kwargs):
+        return CompletedProcess(
+            args,
+            0,
+            "Checking paper.pdf\nParsing Error: Error occurs when parsing page [3].\n"
+            "We detected 0 errors and 0 warnings in your paper.\n",
+            "",
+        )
+
+    result = run_pubcheck(
+        tmp_path / "paper.pdf", "long", ["aclpubcheck"], runner=runner
+    )
+
+    assert result.status == "error"
+    assert "Parsing Error" in result.summary
+
+
+def test_nonzero_checker_exit_is_error(tmp_path):
     def runner(args, **kwargs):
         return CompletedProcess(args, 1, "Margin violation on page 2\n", "")
 
@@ -50,7 +107,7 @@ def test_nonzero_checker_exit_is_fail(tmp_path):
         tmp_path / "paper.pdf", "long", ["aclpubcheck"], runner=runner
     )
 
-    assert result.status == "fail"
+    assert result.status == "error"
     assert result.exit_code == 1
     assert "Margin violation" in result.summary
 

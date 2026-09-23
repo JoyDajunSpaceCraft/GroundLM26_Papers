@@ -6,6 +6,7 @@ from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 import subprocess
+import re
 from typing import Literal
 
 
@@ -75,9 +76,7 @@ def run_pubcheck(
     output = "\n".join(
         part.strip() for part in (completed.stdout, completed.stderr) if part.strip()
     )
-    status: Literal["pass", "fail"] = (
-        "pass" if completed.returncode == 0 else "fail"
-    )
+    status = _classify_result(completed.returncode, output)
     return PubcheckResult(
         status=status,
         exit_code=completed.returncode,
@@ -89,10 +88,50 @@ def run_pubcheck(
 
 def _summarize(output: str, status: str) -> str:
     lines = [line.strip() for line in output.splitlines() if line.strip()]
-    summary = lines[0] if lines else f"aclpubcheck {status}"
+    if not lines:
+        summary = f"aclpubcheck {status}"
+    else:
+        aggregate = next(
+            (
+                line
+                for line in lines
+                if line.startswith("We detected ") or line == "All Clear!"
+            ),
+            None,
+        )
+        detail = next(
+            (
+                line
+                for line in lines
+                if "Error (" in line or "Parsing Error" in line
+            ),
+            None,
+        )
+        if status == "pass":
+            summary = aggregate or lines[-1]
+        elif status == "fail":
+            summary = " | ".join(part for part in (aggregate, detail) if part)
+            summary = summary or lines[-1]
+        else:
+            summary = detail or lines[-1]
     home = str(Path.home())
     if home:
         summary = summary.replace(home, "<HOME>")
     if len(summary) > 500:
         summary = summary[:497] + "..."
     return summary
+
+
+def _classify_result(exit_code: int, output: str) -> Literal["pass", "fail", "error"]:
+    if exit_code != 0:
+        return "error"
+    if re.search(r"Parsing Error", output, flags=re.IGNORECASE):
+        return "error"
+    match = re.search(
+        r"We detected\s+(\d+)\s+errors?\b", output, flags=re.IGNORECASE
+    )
+    if match:
+        return "fail" if int(match.group(1)) else "pass"
+    if "All Clear!" in output:
+        return "pass"
+    return "error"
