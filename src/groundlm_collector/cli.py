@@ -8,6 +8,7 @@ from pathlib import Path
 from collections.abc import Callable, Sequence
 
 from .auth import create_client, load_keychain_credential
+from .check_collection import check_collection
 from .models import ClassifiedSubmission
 from .openreview_source import discover_venue, download_attachment, fetch_submissions
 from .report import PaperRow, write_csv
@@ -218,15 +219,53 @@ def _parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     subparsers = parser.add_subparsers(dest="command", required=True)
     subparsers.add_parser("download", help="Download archival papers and write CSV")
     subparsers.add_parser("dry-run", help="Show selection counts without writing files")
+    check_parser = subparsers.add_parser(
+        "check", help="Run incremental ACL publication checks and update CSV"
+    )
+    check_parser.add_argument(
+        "--force", action="store_true", help="Recheck PDFs even when hashes match"
+    )
+    check_parser.add_argument(
+        "--csv", type=Path, default=Path("papers.csv"), help="Paper report CSV"
+    )
+    check_parser.add_argument(
+        "--logs-dir",
+        type=Path,
+        default=Path("aclpubcheck-logs"),
+        help="Directory for full per-paper checker logs",
+    )
     return parser.parse_args(argv)
 
 
 def main(argv: Sequence[str] | None = None) -> int:
     args = _parse_args(argv)
+    project_root = Path.cwd()
+    if args.command == "check":
+        csv_path = args.csv if args.csv.is_absolute() else project_root / args.csv
+        logs_dir = (
+            args.logs_dir
+            if args.logs_dir.is_absolute()
+            else project_root / args.logs_dir
+        )
+        summary = check_collection(
+            csv_path,
+            project_root,
+            logs_dir,
+            force=args.force,
+        )
+        print(
+            f"complete total={summary.total} checked={summary.checked} "
+            f"skipped={summary.skipped} passed={summary.passed} "
+            f"failed={summary.failed} errors={summary.errors} "
+            f"needs_review={summary.needs_review}",
+            flush=True,
+        )
+        return 0
+
     client = create_client(load_keychain_credential())
     summary = download_collection(
         client,
-        project_root=Path.cwd(),
+        project_root=project_root,
         dry_run=args.command == "dry-run",
         progress=lambda message: print(message, flush=True),
     )
