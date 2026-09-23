@@ -16,6 +16,7 @@ def paper_row(**overrides):
         "paper_type": "long",
         "aclpubcheck_status": "pending",
         "aclpubcheck_summary": "Not run",
+        "aclpubcheck_pdf_sha256": "",
         "openreview_url": "https://openreview.net/forum?id=forum-1",
         "pdf_path": "all_papers/001/paper.pdf",
         "supplementary_files": (
@@ -39,6 +40,8 @@ def test_csv_round_trip_preserves_unicode_commas_and_multiple_authors(tmp_path):
     assert row["title"] == "Grounding, Faithfully"
     assert row["authors"] == "王一木; Doe, Jane"
     assert row["supplementary_files"].endswith("Supplementary_material.zip")
+    assert row["aclpubcheck_pdf_sha256"] == ""
+    assert "aclpubcheck_pdf_sha256" in CSV_COLUMNS
 
 
 def test_csv_uses_lf_and_atomic_write(tmp_path):

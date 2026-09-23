@@ -47,6 +47,7 @@ def test_download_collection_creates_numbered_files_manifest_and_csv(tmp_path):
         row = next(csv.DictReader(handle))
     assert row["number"] == "001"
     assert row["aclpubcheck_status"] == "pending"
+    assert row["aclpubcheck_pdf_sha256"] == ""
 
 
 def test_download_collection_dry_run_writes_nothing(tmp_path):

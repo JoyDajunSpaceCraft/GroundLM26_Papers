@@ -208,6 +208,7 @@ def _paper_row(
         openreview_url=f"https://openreview.net/forum?id={raw.forum}",
         pdf_path=materialized.pdf_path,
         supplementary_files=materialized.supplementary_paths,
+        aclpubcheck_pdf_sha256="",
         checked_at_utc="",
     )
 
