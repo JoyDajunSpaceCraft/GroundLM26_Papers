@@ -5,3 +5,4 @@ __pycache__/
 .DS_Store
 docs/
 reviews_and_meta_reviews.pdf
+private/
