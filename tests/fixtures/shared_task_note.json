@@ -1,0 +1,15 @@
+{
+  "id": "shared-note",
+  "forum": "shared-forum",
+  "number": 3,
+  "content": {
+    "title": {"value": "Shared Task Paper"},
+    "authors": {"value": ["Author Three"]},
+    "authorids": {"value": ["~Author_Three1"]},
+    "venue": {"value": "EMNLP 2026 Workshop GroundLM Shared Tasks"},
+    "venueid": {"value": "EMNLP/2026/Workshop/GroundLM_Shared_Tasks"},
+    "pdf": {"value": "/pdf/redacted.pdf"},
+    "participating_subtasks": {"value": ["Task A"]},
+    "paper_bibtex": {"value": "@inproceedings{redacted}"}
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "id": "direct-note",
+  "forum": "direct-forum",
+  "number": 1,
+  "content": {
+    "title": {"value": "Direct Paper"},
+    "authors": {"value": ["Author One"]},
+    "authorids": {"value": ["~Author_One1"]},
+    "submission_track": {"value": "Track 1: Direct Submission"},
+    "submission_type": {"value": "Archival Long Paper (8 pages limitation for the main body)"},
+    "venue": {"value": "GroundLM"},
+    "venueid": {"value": "EMNLP/2026/Workshop/GroundLM"},
+    "pdf": {"value": "/pdf/redacted.pdf"},
+    "Supplementary_material": {"value": "/attachment/redacted.zip"}
+  }
+}

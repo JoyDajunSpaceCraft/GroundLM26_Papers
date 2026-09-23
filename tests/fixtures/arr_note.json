@@ -1,0 +1,15 @@
+{
+  "id": "arr-note",
+  "forum": "arr-forum",
+  "number": 2,
+  "content": {
+    "title": {"value": "ARR Paper"},
+    "authors": {"value": ["Author Two"]},
+    "authorids": {"value": ["~Author_Two1"]},
+    "submission_track": {"value": "Track 2: ARR Commitment"},
+    "submission_type": {"value": "Archival Short Paper (4 pages limitation for the main body)"},
+    "venue": {"value": "EMNLP 2026 Workshop GroundLM ARR Commitment"},
+    "venueid": {"value": "EMNLP/2026/Workshop/GroundLM_ARR_Commitment"},
+    "pdf": {"value": "/pdf/redacted.pdf"}
+  }
+}
