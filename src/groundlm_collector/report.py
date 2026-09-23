@@ -25,6 +25,7 @@ CSV_COLUMNS = (
     "openreview_url",
     "pdf_path",
     "supplementary_files",
+    "aclpubcheck_pdf_sha256",
     "checked_at_utc",
 )
 
@@ -45,6 +46,7 @@ class PaperRow:
     openreview_url: str
     pdf_path: str
     supplementary_files: tuple[str, ...]
+    aclpubcheck_pdf_sha256: str
     checked_at_utc: str
 
 
